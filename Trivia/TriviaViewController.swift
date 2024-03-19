@@ -22,13 +22,29 @@ class TriviaViewController: UIViewController {
   private var currQuestionIndex = 0
   private var numCorrectQuestions = 0
   
+    private let triviaService = TriviaQuestionService() // Instantiate your service
+
+    
   override func viewDidLoad() {
     super.viewDidLoad()
     addGradient()
     questionContainerView.layer.cornerRadius = 8.0
     // TODO: FETCH TRIVIA QUESTIONS HERE
+      fetchTriviaQuestions()
   }
   
+    private func fetchTriviaQuestions() {
+           triviaService.fetchTriviaQuestions { [weak self] questions in
+               DispatchQueue.main.async {
+                   guard let self = self, let questions = questions, !questions.isEmpty else {
+                       // Handle the case where no questions are returned or an error occurs
+                       return
+                   }
+                   self.questions = questions
+                   self.updateQuestion(withQuestionIndex: self.currQuestionIndex)
+               }
+           }
+       }
   private func updateQuestion(withQuestionIndex questionIndex: Int) {
     currentQuestionNumberLabel.text = "Question: \(questionIndex + 1)/\(questions.count)"
     let question = questions[questionIndex]
